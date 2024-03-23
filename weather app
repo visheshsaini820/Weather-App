@@ -1,0 +1,61 @@
+import tkinter as tk
+import requests
+from PIL import Image, ImageTk
+
+root = tk.Tk()
+root.title("Weather App")
+root.geometry("600x500")
+
+# Define function to format weather response
+def format_response(weather):
+    try:
+        city = weather['name']
+        condition = weather['weather'][0]['description']
+        temp = weather['main']['temp']
+        final_str = 'City: {}\nCondition: {}\nTemperature: {}'.format(city, condition, temp)
+    except:
+        final_str = 'There was a problem retrieving that information'
+    return final_str
+
+# Define function to fetch weather data
+def get_weather(city):
+    weather_key = '8855da3a12581b6ca54420bf6b9bc117'
+    url = 'https://api.openweathermap.org/data/2.5/weather'
+    params = {'APPID': weather_key, 'q': city, 'units': 'imperial'}
+    response = requests.get(url, params)
+    weather = response.json()
+    result['text'] = format_response(weather)
+
+# Load background image
+img = Image.open('./bg.png')
+img = img.resize((600, 500), Image.ANTIALIAS)
+img_photo = ImageTk.PhotoImage(img)
+
+bg_lbl = tk.Label(root, image=img_photo)
+bg_lbl.place(x=0, y=0, width=600, height=500)
+
+# Add title label
+heading_title = tk.Label(bg_lbl, text='Earth including over 200,000 cities!', fg='red', font=('times new roman', 18, 'bold'))
+heading_title.place(x=80, y=18)
+
+# Frame for input and button
+frame_one = tk.Frame(bg_lbl, bg="#42c2f4", bd=5)
+frame_one.place(x=80, y=50, width=450, height=50)
+
+# Entry box for city input
+txt_box = tk.Entry(frame_one, font=('times new roman', 25), width=17)
+txt_box.grid(row=0, column=0, sticky='w')
+
+# Button to get weather
+btn = tk.Button(frame_one, text='Get Weather', fg='green', font=('times new roman', 16, 'bold'), command=lambda: get_weather(txt_box.get()))
+btn.grid(row=0, column=1, padx=10)
+
+# Frame for displaying weather result
+frame_two = tk.Frame(bg_lbl, bg="#42c2f4", bd=5)
+frame_two.place(x=80, y=130, width=450, height=300)
+
+# Label to display weather result
+result = tk.Label(frame_two, font=40, bg='white')
+result.place(relwidth=1, relheight=1)
+
+root.mainloop()
